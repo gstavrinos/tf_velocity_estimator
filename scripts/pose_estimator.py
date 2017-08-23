@@ -3,15 +3,18 @@ import tf
 import rospy
 from tf import TransformListener
 from tf2_msgs.msg import TFMessage
+from gemetry_msgs.msg import PoseStamped
 
 tf_broadcaster = None
 sliding_window = []
 tf_ = None
+sliding_window_sz = 0
 
 def init():
-    global tf_broadcaster, targeted_tf, tf_
+    global tf_broadcaster, targeted_tf, tf_, sliding_window_sz
     rospy.init_node('tf_pose_estimator')
     targeted_tf = rospy.get_param("~targeted_tf", "helipad")
+    targeted_tf = rospy.get_param("~sliding_window_sz", 10)
     tf_broadcaster = tf.TransformBroadcaster()
     tf_ = TransformListener()
     rospy.Subscriber("tf", TFMessage, tf_callback)
@@ -19,16 +22,22 @@ def init():
         rospy.spin()
 
 def tf_callback(tf2):
-    global tf_broadcaster, targeted_tf, tf_
+    global tf_broadcaster, targeted_tf, tf_, sliding_window_sz
     #if tf_.frameExists("odom") :#and tf_.frameExists(targeted_tf):
     try:
         t = tf_.getLatestCommonTime("/odom", targeted_tf)
         position, quaternion = tf_.lookupTransform("/odom", targeted_tf, t)
         print position
-        if position not in sliding_window:
-            # TODO create an object that includes position and time
-            #sliding_window.push_back(position)
-            pass
+        # Untested from here
+        ps = PoseStamped()
+        ps.header.stamp = rospy.Time.now()
+        ps.header.frame_id = targeted_tf
+        ps.pose.position = position
+        ps.pose.orientation = quaternion
+            sliding_window.push_back(ps)
+        if len(sliding_window) >= sliding_window_sz:
+            del sliding_window[0]
+        # Till here!
     except:
         pass
     '''
