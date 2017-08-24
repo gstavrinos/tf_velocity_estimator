@@ -9,6 +9,9 @@
   <license>TODO</license>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>message_generation</buildtool_depend>
+
+  <run_depend>message_runtime</run_depend>
 
 
   <export>

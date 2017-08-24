@@ -3,7 +3,8 @@ import tf
 import rospy
 from tf import TransformListener
 from tf2_msgs.msg import TFMessage
-from gemetry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped
+from tf_pose_estimator.srv import EstimatorRequest
 
 tf_broadcaster = None
 sliding_window = []
@@ -18,6 +19,7 @@ def init():
     tf_broadcaster = tf.TransformBroadcaster()
     tf_ = TransformListener()
     rospy.Subscriber("tf", TFMessage, tf_callback)
+    rospy.Service('tf_pose_estimation', EstimatorRequest, pose_estimation)
     while not rospy.is_shutdown():
         rospy.spin()
 
@@ -34,7 +36,7 @@ def tf_callback(tf2):
         ps.header.frame_id = targeted_tf
         ps.pose.position = position
         ps.pose.orientation = quaternion
-            sliding_window.push_back(ps)
+        sliding_window.push_back(ps)
         if len(sliding_window) >= sliding_window_sz:
             del sliding_window[0]
         # Till here!
@@ -77,6 +79,11 @@ def tf_callback(tf2):
         marker.lifetime = rospy.Duration(1);
         marker_publisher.publish(marker)
     '''
+
+def pose_estimation(msg):
+    print msg
+    print msg.seconds
+    return True
 
 if __name__ == '__main__':
     init() 
