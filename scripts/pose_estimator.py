@@ -8,6 +8,7 @@ from tf_pose_estimator.srv import EstimatorRequest
 
 tf_broadcaster = None
 sliding_window = []
+sliding_window_v = []
 tf_ = None
 sliding_window_sz = 0
 
@@ -23,8 +24,13 @@ def init():
     while not rospy.is_shutdown():
         rospy.spin()
 
+def approx(p1, p2):
+    if (abs(p1.pose.position.x) - abs(p2.pose.position.x) >= 0.1) or abs(p1.pose.position.y) - abs(p2.pose.position.y) >= 0.1:
+        return True
+    return False
+
 def tf_callback(tf2):
-    global tf_broadcaster, targeted_tf, tf_, sliding_window_sz
+    global tf_broadcaster, targeted_tf, tf_, sliding_window_sz, sliding_window, sliding_window_v
     #if tf_.frameExists("odom") :#and tf_.frameExists(targeted_tf):
     try:
         t = tf_.getLatestCommonTime("/odom", targeted_tf)
@@ -39,7 +45,27 @@ def tf_callback(tf2):
         sliding_window.push_back(ps)
         if len(sliding_window) >= sliding_window_sz:
             del sliding_window[0]
+            del sliding_window_v[0]
+        vx = 0
+        vy = 0
+        vz = 0
+        v = [vx, vy, vz]
+        latest_continuous = 0
+        if len(sliding_window) > 1:
+            dx = sliding_window[-1].pose.position.x - sliding_window[-2].pose.position.x
+            dy = sliding_window[-1].pose.position.y - sliding_window[-2].pose.position.y
+            dz = sliding_window[-1].pose.position.z - sliding_window[-2].pose.position.z
+            dt = sliding_window[-1].header.stamp - sliding_window[-2].header.stamp
+            vx = dx / dt
+            vy = dy / dt
+            vz = dz / dt
+            v = [vx, vy, vz]
+            sliding_window_v.append(v)
+        else:
+            sliding_window_v.append(v)
         # Till here!
+
+
     except:
         pass
     '''
