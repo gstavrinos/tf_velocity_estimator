@@ -3,16 +3,19 @@ project(tf_pose_estimator)
 find_package(catkin REQUIRED COMPONENTS
     rospy
     std_msgs
+    geometry_msgs
     message_generation
 )
 
-add_service_files(
+add_message_files(
     FILES
-    EstimatorRequest.srv
+    PosesAndVelocities.msg
+    Velocity.msg
 )
 
 generate_messages(
     DEPENDENCIES
     std_msgs
+    geometry_msgs
 )
 catkin_package()

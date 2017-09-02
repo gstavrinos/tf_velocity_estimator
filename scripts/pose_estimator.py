@@ -5,9 +5,11 @@ import traceback
 from tf import TransformListener
 from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import PoseStamped
-from tf_pose_estimator.srv import EstimatorRequest
+from tf_pose_estimator.msg import PosesAndVelocities
+from tf_pose_estimator.msg import Velocity
 
 tf_ = None
+p_v_pub = None
 targeted_tf = ''
 sliding_window = []
 sliding_window_v = []
@@ -16,13 +18,14 @@ sliding_window_sz = 0
 
 def init():
     global tf_broadcaster, targeted_tf, tf_, sliding_window_sz
+    global p_v_pub
     rospy.init_node('tf_pose_estimator')
     targeted_tf = rospy.get_param("~targeted_tf", "helipad")
     sliding_window_sz = rospy.get_param("~sliding_window_sz", 10)
     tf_broadcaster = tf.TransformBroadcaster()
     tf_ = TransformListener()
     rospy.Subscriber("tf", TFMessage, tf_callback)
-    rospy.Service('tf_pose_estimation', EstimatorRequest, pose_estimation)
+    p_v_pub = rospy.Publisher("poses_velocities", PosesAndVelocities, queue_size=1)
     while not rospy.is_shutdown():
         rospy.spin()
 
@@ -34,6 +37,7 @@ def approx(p1, p2):
 def tf_callback(tf2):
     global tf_broadcaster, targeted_tf, tf_
     global sliding_window_sz, sliding_window, sliding_window_v
+    global p_v_pub
     #if tf_.frameExists("odom") :#and tf_.frameExists(targeted_tf):
     try:
         t = tf_.getLatestCommonTime("/odom", targeted_tf)
@@ -67,7 +71,10 @@ def tf_callback(tf2):
             vx = dx / dt
             vy = dy / dt
             vz = dz / dt
-            v = [vx, vy, vz]
+            v = Velocity()
+            v.vx = vx
+            v.vy = vy
+            v.vz = vz
             print v
             sliding_window_v.append(v)
         else:
@@ -76,10 +83,16 @@ def tf_callback(tf2):
     except Exception as e:
         print traceback.format_exc()
 
+    pvmsg = PosesAndVelocities()
+    pvmsg.latest_poses = sliding_window
+    pvmsg.latest_velocities = sliding_window_v
+    p_v_pub.publish(pvmsg)
+
 def pose_estimation(msg):
+    global sliding_window
     print msg
     print msg.seconds
-    return True
+    return sliding_window, True
 
 if __name__ == '__main__':
     init() 
