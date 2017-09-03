@@ -13,16 +13,14 @@ p_v_pub = None
 targeted_tf = ''
 sliding_window = []
 sliding_window_v = []
-tf_broadcaster = None
 sliding_window_sz = 0
 
 def init():
-    global tf_broadcaster, targeted_tf, tf_, sliding_window_sz
+    global targeted_tf, tf_, sliding_window_sz
     global p_v_pub
     rospy.init_node('tf_pose_estimator')
     targeted_tf = rospy.get_param("~targeted_tf", "helipad")
     sliding_window_sz = rospy.get_param("~sliding_window_sz", 10)
-    tf_broadcaster = tf.TransformBroadcaster()
     tf_ = TransformListener()
     rospy.Subscriber("tf", TFMessage, tf_callback)
     p_v_pub = rospy.Publisher("tf_pose_estimator/poses_velocities", PosesAndVelocities, queue_size=1)
@@ -30,7 +28,7 @@ def init():
         rospy.spin()
 
 def tf_callback(tf2):
-    global tf_broadcaster, targeted_tf, tf_
+    global targeted_tf, tf_
     global sliding_window_sz, sliding_window, sliding_window_v
     global p_v_pub
     #if tf_.frameExists("odom") :#and tf_.frameExists(targeted_tf):
@@ -70,7 +68,6 @@ def tf_callback(tf2):
             v.vx = vx
             v.vy = vy
             v.vz = vz
-            print v
             sliding_window_v.append(v)
         else:
             sliding_window_v.append(v)
