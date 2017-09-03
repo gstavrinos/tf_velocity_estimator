@@ -24,15 +24,10 @@ def init():
     sliding_window_sz = rospy.get_param("~sliding_window_sz", 10)
     tf_broadcaster = tf.TransformBroadcaster()
     tf_ = TransformListener()
-    rospy.Subscriber("tf", TFMessage, tf_callback)
-    p_v_pub = rospy.Publisher("poses_velocities", PosesAndVelocities, queue_size=1)
+    rospy.Subscriber("poses_velocities", TFMessage, tf_callback)
+    p_v_pub = rospy.Publisher("tf_pose_estimator/poses_velocities", PosesAndVelocities, queue_size=1)
     while not rospy.is_shutdown():
         rospy.spin()
-
-def approx(p1, p2):
-    if (abs(p1.pose.position.x) - abs(p2.pose.position.x) >= 0.1) or abs(p1.pose.position.y) - abs(p2.pose.position.y) >= 0.1:
-        return True
-    return False
 
 def tf_callback(tf2):
     global tf_broadcaster, targeted_tf, tf_
@@ -87,12 +82,6 @@ def tf_callback(tf2):
     pvmsg.latest_poses = sliding_window
     pvmsg.latest_velocities = sliding_window_v
     p_v_pub.publish(pvmsg)
-
-def pose_estimation(msg):
-    global sliding_window
-    print msg
-    print msg.seconds
-    return sliding_window, True
 
 if __name__ == '__main__':
     init() 
