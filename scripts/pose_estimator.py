@@ -24,7 +24,7 @@ def init():
     sliding_window_sz = rospy.get_param("~sliding_window_sz", 10)
     tf_broadcaster = tf.TransformBroadcaster()
     tf_ = TransformListener()
-    rospy.Subscriber("poses_velocities", TFMessage, tf_callback)
+    rospy.Subscriber("tf", TFMessage, tf_callback)
     p_v_pub = rospy.Publisher("tf_pose_estimator/poses_velocities", PosesAndVelocities, queue_size=1)
     while not rospy.is_shutdown():
         rospy.spin()
