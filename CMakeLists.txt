@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(tf_pose_estimator)
+project(tf_velocity_estimator)
 find_package(catkin REQUIRED COMPONENTS
     rospy
     std_msgs

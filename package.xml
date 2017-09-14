@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>tf_pose_estimator</name>
+  <name>tf_velocity_estimator</name>
   <version>0.0.0</version>
-  <description>The tf_pose_estimator package</description>
+  <description>The tf_velocityestimator package</description>
 
   <maintainer email="gstavrinos@iit.demokritos.gr">George Stavrinos</maintainer>
 

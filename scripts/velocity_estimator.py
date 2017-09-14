@@ -18,12 +18,12 @@ sliding_window_sz = 0
 def init():
     global targeted_tf, tf_, sliding_window_sz
     global p_v_pub
-    rospy.init_node('tf_pose_estimator')
+    rospy.init_node('tf_velocity_estimator')
     targeted_tf = rospy.get_param("~targeted_tf", "helipad")
     sliding_window_sz = rospy.get_param("~sliding_window_sz", 10)
     tf_ = TransformListener()
     rospy.Subscriber("tf", TFMessage, tf_callback)
-    p_v_pub = rospy.Publisher("tf_pose_estimator/poses_velocities", PosesAndVelocities, queue_size=1)
+    p_v_pub = rospy.Publisher("tf_velocity_estimator/poses_velocities", PosesAndVelocities, queue_size=1)
     while not rospy.is_shutdown():
         rospy.spin()
 
