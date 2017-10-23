@@ -41,7 +41,7 @@ def tf_callback(tf2):
             position, quaternion = tf_.lookupTransform("/odom", targeted_tf, t)
             # Untested from here
             ps = PoseStamped()
-            ps.header.stamp = rospy.Time.now()
+            ps.header.stamp = latest_common_time
             ps.header.frame_id = targeted_tf
             ps.pose.position.x = position[0]
             ps.pose.position.y = position[1]
@@ -64,10 +64,19 @@ def tf_callback(tf2):
                 dx = sliding_window[-1].pose.position.x - sliding_window[-2].pose.position.x
                 dy = sliding_window[-1].pose.position.y - sliding_window[-2].pose.position.y
                 dz = sliding_window[-1].pose.position.z - sliding_window[-2].pose.position.z
-                dt = (sliding_window[-1].header.stamp.secs + sliding_window[-1].header.stamp.nsecs * 10e-9) - (sliding_window[-2].header.stamp.secs + sliding_window[-2].header.stamp.nsecs * 10e-9)
+                #dt = (sliding_window[-1].header.stamp.secs + sliding_window[-1].header.stamp.nsecs * 10e-9) - (sliding_window[-2].header.stamp.secs + sliding_window[-2].header.stamp.nsecs * 10e-9)
+                dt = sliding_window[-1].header.stamp.to_sec() - sliding_window[-2].header.stamp.to_sec()
                 vx = dx / dt
                 vy = dy / dt
                 vz = dz / dt
+                '''
+                print "---"
+                print sliding_window[-1].pose.position.y
+                print sliding_window[-2].pose.position.y
+                print dt
+                print vy
+                print "###"
+                '''
                 v = Velocity()
                 v.vx = vx
                 v.vy = vy
