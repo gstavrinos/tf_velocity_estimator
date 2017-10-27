@@ -33,7 +33,6 @@ def tf_callback(tf2):
     global targeted_tf, tf_
     global sliding_window_sz, sliding_window, sliding_window_v
     global p_v_pub, latest_common_time
-    #if tf_.frameExists("odom") :#and tf_.frameExists(targeted_tf):
     try:
         t = tf_.getLatestCommonTime("/odom", targeted_tf)
         if latest_common_time < t:
@@ -58,7 +57,7 @@ def tf_callback(tf2):
             vx = 0
             vy = 0
             vz = 0
-            v = [vx, vy, vz]
+            v = Velocity()
             latest_continuous = 0
             if len(sliding_window) > 1:
                 dx = sliding_window[-1].pose.position.x - sliding_window[-2].pose.position.x
@@ -69,15 +68,6 @@ def tf_callback(tf2):
                 vx = dx / dt
                 vy = dy / dt
                 vz = dz / dt
-                '''
-                print "---"
-                print sliding_window[-1].pose.position.y
-                print sliding_window[-2].pose.position.y
-                print dt
-                print vy
-                print "###"
-                '''
-                v = Velocity()
                 v.vx = vx
                 v.vy = vy
                 v.vz = vz
@@ -88,10 +78,11 @@ def tf_callback(tf2):
     except Exception as e:
         print traceback.format_exc()
 
-    pvmsg = PosesAndVelocities()
-    pvmsg.latest_poses = sliding_window
-    pvmsg.latest_velocities = sliding_window_v
-    p_v_pub.publish(pvmsg)
+    if len(sliding_window_v) > 0 and len(sliding_window) > 0:
+        pvmsg = PosesAndVelocities()
+        pvmsg.latest_poses = sliding_window
+        pvmsg.latest_velocities = sliding_window_v
+        p_v_pub.publish(pvmsg)
 
 if __name__ == '__main__':
     init() 
