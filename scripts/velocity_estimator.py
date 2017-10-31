@@ -65,12 +65,13 @@ def tf_callback(tf2):
                 dz = sliding_window[-1].pose.position.z - sliding_window[-2].pose.position.z
                 #dt = (sliding_window[-1].header.stamp.secs + sliding_window[-1].header.stamp.nsecs * 10e-9) - (sliding_window[-2].header.stamp.secs + sliding_window[-2].header.stamp.nsecs * 10e-9)
                 dt = sliding_window[-1].header.stamp.to_sec() - sliding_window[-2].header.stamp.to_sec()
-                vx = dx / dt
-                vy = dy / dt
-                vz = dz / dt
-                v.vx = vx
-                v.vy = vy
-                v.vz = vz
+                if dt > 0:
+                    vx = dx / dt
+                    vy = dy / dt
+                    vz = dz / dt
+                    v.vx = vx
+                    v.vy = vy
+                    v.vz = vz
                 sliding_window_v.append(v)
             else:
                 sliding_window_v.append(v)
