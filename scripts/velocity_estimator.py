@@ -5,8 +5,8 @@ import traceback
 from tf import TransformListener
 from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import PoseStamped
-from tf_pose_estimator.msg import PosesAndVelocities
-from tf_pose_estimator.msg import Velocity
+from tf_velocity_estimator.msg import PosesAndVelocities
+from tf_velocity_estimator.msg import Velocity
 
 tf_ = None
 p_v_pub = None
