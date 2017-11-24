@@ -54,11 +54,8 @@ def tf_callback(tf2):
                 del sliding_window[0]
                 if len(sliding_window_v) >= sliding_window_sz:
                     del sliding_window_v[0]
-            vx = 0
-            vy = 0
-            vz = 0
+
             v = Velocity()
-            latest_continuous = 0
             if len(sliding_window) > 1:
                 dx = sliding_window[-1].pose.position.x - sliding_window[-2].pose.position.x
                 dy = sliding_window[-1].pose.position.y - sliding_window[-2].pose.position.y
@@ -66,13 +63,10 @@ def tf_callback(tf2):
                 #dt = (sliding_window[-1].header.stamp.secs + sliding_window[-1].header.stamp.nsecs * 10e-9) - (sliding_window[-2].header.stamp.secs + sliding_window[-2].header.stamp.nsecs * 10e-9)
                 dt = sliding_window[-1].header.stamp.to_sec() - sliding_window[-2].header.stamp.to_sec()
                 if dt > 0:
-                    vx = dx / dt
-                    vy = dy / dt
-                    vz = dz / dt
-                    v.vx = vx
-                    v.vy = vy
-                    v.vz = vz
-                sliding_window_v.append(v)
+                    v.vx = dx / dt
+                    v.vy = dy / dt
+                    v.vz = dz / dt
+                    sliding_window_v.append(v)
             else:
                 sliding_window_v.append(v)
         # Till here!
