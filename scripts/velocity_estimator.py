@@ -71,7 +71,8 @@ def tf_callback(tf2):
                 sliding_window_v.append(v)
         # Till here!
     except Exception as e:
-        print traceback.format_exc()
+        pass
+        #print traceback.format_exc()
 
     if len(sliding_window_v) > 5 and len(sliding_window) > 5:
         pvmsg = PosesAndVelocities()
