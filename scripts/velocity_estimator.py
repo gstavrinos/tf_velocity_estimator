@@ -20,12 +20,12 @@ def init():
     global targeted_tf, tf_, sliding_window_sz
     global p_v_pub, latest_common_time
     rospy.init_node('tf_velocity_estimator')
-    targeted_tf = rospy.get_param("~targeted_tf", "helipad")
-    sliding_window_sz = rospy.get_param("~sliding_window_sz", 10)
+    targeted_tf = rospy.get_param('~targeted_tf', 'helipad')
+    sliding_window_sz = rospy.get_param('~sliding_window_sz', 10)
     tf_ = TransformListener()
     latest_common_time = rospy.Time.now()
-    rospy.Subscriber("tf", TFMessage, tf_callback)
-    p_v_pub = rospy.Publisher("tf_velocity_estimator/poses_velocities", PosesAndVelocities, queue_size=1)
+    rospy.Subscriber('tf', TFMessage, tf_callback)
+    p_v_pub = rospy.Publisher('tf_velocity_estimator/poses_velocities', PosesAndVelocities, queue_size=1)
     while not rospy.is_shutdown():
         rospy.spin()
 
@@ -34,14 +34,14 @@ def tf_callback(tf2):
     global sliding_window_sz, sliding_window, sliding_window_v
     global p_v_pub, latest_common_time
     try:
-        t = tf_.getLatestCommonTime("/odom", targeted_tf)
+        t = tf_.getLatestCommonTime('/odom', targeted_tf)
         if latest_common_time < t:
             latest_common_time = t
-            position, quaternion = tf_.lookupTransform("/odom", targeted_tf, t)
+            position, quaternion = tf_.lookupTransform('/odom', targeted_tf, t)
             # Untested from here
             ps = PoseStamped()
             ps.header.stamp = latest_common_time
-            ps.header.frame_id = targeted_tf
+            ps.header.frame_id = '/odom'
             ps.pose.position.x = position[0]
             ps.pose.position.y = position[1]
             ps.pose.position.z = position[2]
@@ -73,7 +73,7 @@ def tf_callback(tf2):
     except Exception as e:
         print traceback.format_exc()
 
-    if len(sliding_window_v) > 0 and len(sliding_window) > 0:
+    if len(sliding_window_v) > 5 and len(sliding_window) > 5:
         pvmsg = PosesAndVelocities()
         pvmsg.latest_poses = sliding_window
         pvmsg.latest_velocities = sliding_window_v
