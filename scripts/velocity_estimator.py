@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import tf
 import rospy
-import traceback
 from tf import TransformListener
 from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import PoseStamped
@@ -38,7 +37,6 @@ def tf_callback(tf2):
         if latest_common_time < t:
             latest_common_time = t
             position, quaternion = tf_.lookupTransform('/odom', targeted_tf, t)
-            # Untested from here
             ps = PoseStamped()
             ps.header.stamp = latest_common_time
             ps.header.frame_id = '/odom'
@@ -60,7 +58,6 @@ def tf_callback(tf2):
                 dx = sliding_window[-1].pose.position.x - sliding_window[-2].pose.position.x
                 dy = sliding_window[-1].pose.position.y - sliding_window[-2].pose.position.y
                 dz = sliding_window[-1].pose.position.z - sliding_window[-2].pose.position.z
-                #dt = (sliding_window[-1].header.stamp.secs + sliding_window[-1].header.stamp.nsecs * 10e-9) - (sliding_window[-2].header.stamp.secs + sliding_window[-2].header.stamp.nsecs * 10e-9)
                 dt = sliding_window[-1].header.stamp.to_sec() - sliding_window[-2].header.stamp.to_sec()
                 if dt > 0:
                     v.vx = dx / dt
@@ -69,12 +66,10 @@ def tf_callback(tf2):
                     sliding_window_v.append(v)
             else:
                 sliding_window_v.append(v)
-        # Till here!
     except Exception as e:
         pass
-        #print traceback.format_exc()
 
-    if len(sliding_window_v) > 5 and len(sliding_window) > 5:
+    if len(sliding_window_v) > sliding_window_sz / 2 and len(sliding_window) > sliding_window_sz / 2:
         pvmsg = PosesAndVelocities()
         pvmsg.latest_poses = sliding_window
         pvmsg.latest_velocities = sliding_window_v
